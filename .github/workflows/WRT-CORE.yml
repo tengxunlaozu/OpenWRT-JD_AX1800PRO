@@ -230,7 +230,7 @@ jobs:
           body: |
             这是个平台固件，只支持京东云亚瑟AX1800 Pro！
 
-            带开源硬件加速了！
+            带开源硬件加速！
 
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
