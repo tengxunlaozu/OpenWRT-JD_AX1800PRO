@@ -2,9 +2,6 @@
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
 CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y
-CONFIG_PACKAGE_daed=y
-CONFIG_PACKAGE_luci-app-daed=y
-CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y
 # 核心二进制 sing-box (必选)
 CONFIG_PACKAGE_sing-box=y
 # 启用 mosdns 核心、LuCI 界面与中文语言包
@@ -33,9 +30,7 @@ CONFIG_DEVEL=y
 CONFIG_TARGET_MULTI_PROFILE=y
 CONFIG_TARGET_PER_DEVICE_ROOTFS=y
 CONFIG_TARGET_ROOTFS_INITRAMFS=n
-#内核调整，前2个是daed需要的
-CONFIG_PACKAGE_kmod-sched-core=y
-CONFIG_PACKAGE_kmod-sched-bpf=y
+#内核调整
 CONFIG_PACKAGE_kmod-bonding=y
 CONFIG_PACKAGE_kmod-dsa=y
 #CONFIG_PACKAGE_kmod-fs-btrfs=y
