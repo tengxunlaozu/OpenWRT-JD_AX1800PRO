@@ -7,6 +7,12 @@ CONFIG_PACKAGE_luci-app-daed=y
 CONFIG_PACKAGE_luci-i18n-daed-zh-cn=y
 # 核心二进制 sing-box (必选)
 CONFIG_PACKAGE_sing-box=y
+# 启用 mosdns 核心、LuCI 界面与中文语言包
+CONFIG_PACKAGE_mosdns=y
+CONFIG_PACKAGE_luci-app-mosdns=y
+CONFIG_PACKAGE_luci-i18n-mosdns-zh-cn=y
+# 规则转换工具 (可选但建议勾选)
+CONFIG_PACKAGE_v2dat=y
 #增加插件
 CONFIG_PACKAGE_luci-app-autoreboot=y
 CONFIG_PACKAGE_luci-app-partexp=y
