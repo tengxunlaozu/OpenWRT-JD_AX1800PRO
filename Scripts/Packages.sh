@@ -59,7 +59,6 @@ UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
 UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 UPDATE_PACKAGE "fancontrol" "rockjake/luci-app-fancontrol" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
-UPDATE_PACKAGE "wireguard" "openwrt/packages" "master" "" "luci-app-wireguard luci-proto-wireguard kmod-wireguard"
 
 UPDATE_VERSION() {
 	local PKG_NAME=$1
