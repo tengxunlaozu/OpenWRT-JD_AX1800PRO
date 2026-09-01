@@ -42,3 +42,13 @@ if [ -f "$DM_FILE" ]; then
 
 	cd $PKG_PATH && echo "diskman has been fixed!"
 fi
+
+#修复nikki脚本权限
+NIKKI_INIT="./luci-app-nikki/root/etc/init.d/nikki"
+if [ -f "$NIKKI_INIT" ]; then
+	echo " "
+
+	chmod +x "$NIKKI_INIT"
+
+	cd $PKG_PATH && echo "nikki has been fixed!"
+fi
