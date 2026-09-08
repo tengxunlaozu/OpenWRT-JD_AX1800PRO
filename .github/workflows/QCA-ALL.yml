@@ -1,7 +1,17 @@
-name: Build JDCloud AX1800 Pro
+name: QCA-ALL
 
 on:
   workflow_dispatch:
+    inputs:
+      PACKAGE:
+        description: Optional OpenWrt config entries, separated by new lines.
+        required: false
+        type: string
+      TEST:
+        description: Only generate and upload the final .config; do not build firmware.
+        default: false
+        required: false
+        type: boolean
 
 permissions:
   contents: write
@@ -14,6 +24,8 @@ env:
   WRT_IP: 192.168.10.1
   WRT_SSID: JD-AX1800PRO
   WRT_WORD: 12345678
+  WRT_PACKAGE: ${{ inputs.PACKAGE }}
+  WRT_TEST: ${{ inputs.TEST }}
 
 jobs:
   build:
@@ -43,7 +55,16 @@ jobs:
       - name: Update feeds and custom packages
         run: |
           cd wrt
-          ./scripts/feeds update -a
+          for attempt in 1 2 3; do
+            if ./scripts/feeds update -a; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then
+              exit 1
+            fi
+            echo "Feed update failed; retrying in 15 seconds (attempt $attempt/3)."
+            sleep 15
+          done
           ./scripts/feeds install -a
           cd package
           chmod +x "$GITHUB_WORKSPACE/Scripts/Packages.sh" "$GITHUB_WORKSPACE/Scripts/Handles.sh"
@@ -57,33 +78,35 @@ jobs:
           chmod +x "$GITHUB_WORKSPACE/Scripts/Settings.sh"
           WRT_MARK="${GITHUB_REPOSITORY%%/*}" WRT_DATE="${{ steps.source.outputs.date }}" "$GITHUB_WORKSPACE/Scripts/Settings.sh"
           make defconfig
+          mkdir -p "$GITHUB_WORKSPACE/release"
+          cp .config "$GITHUB_WORKSPACE/release/openwrt.config"
 
       - name: Download source packages
+        if: env.WRT_TEST != 'true'
         run: |
           cd wrt
           make download -j"$(nproc)"
 
       - name: Build firmware
+        if: env.WRT_TEST != 'true'
         run: |
           cd wrt
           make -j"$(nproc)" || make -j1 V=s
 
       - name: Collect firmware
+        if: env.WRT_TEST != 'true'
         run: |
           set -euo pipefail
-          release_dir="$GITHUB_WORKSPACE/release"
           target_dir="$GITHUB_WORKSPACE/wrt/bin/targets/qualcommax/ipq60xx"
           test -d "$target_dir"
-          mkdir -p "$release_dir"
-          find "$target_dir" -maxdepth 1 -type f -name '*jdcloud_re-ss-01*.bin' -exec cp {} "$release_dir" \;
-          test -n "$(find "$release_dir" -maxdepth 1 -type f -name '*.bin' -print -quit)"
-          cp "$GITHUB_WORKSPACE/wrt/.config" "$release_dir/openwrt.config"
+          find "$target_dir" -maxdepth 1 -type f -name '*jdcloud_re-ss-01*.bin' -exec cp {} "$GITHUB_WORKSPACE/release" \;
+          test -n "$(find "$GITHUB_WORKSPACE/release" -maxdepth 1 -type f -name '*.bin' -print -quit)"
           (
-            cd "$release_dir"
+            cd "$GITHUB_WORKSPACE/release"
             sha256sum *.bin > sha256sums
           )
 
-      - name: Upload firmware artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: jd-ax1800pro-${{ steps.source.outputs.date }}
@@ -91,6 +114,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub release
+        if: env.WRT_TEST != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: jd-ax1800pro-${{ steps.source.outputs.date }}

@@ -28,8 +28,21 @@ UPDATE_PACKAGE() {
 		fi
 	done
 
-	# 克隆 GitHub 仓库
-	git clone --depth=1 --single-branch --branch $PKG_BRANCH "https://github.com/$PKG_REPO.git"
+	# GitHub connections occasionally fail on hosted runners. Retry each shallow clone.
+	for ATTEMPT in 1 2 3; do
+		if git -c http.version=HTTP/1.1 clone --depth=1 --single-branch --branch "$PKG_BRANCH" "https://github.com/$PKG_REPO.git"; then
+			break
+		fi
+
+		if [ "$ATTEMPT" = 3 ]; then
+			echo "Failed to clone $PKG_REPO after $ATTEMPT attempts."
+			return 1
+		fi
+
+		echo "Clone failed; retrying $PKG_REPO in 10 seconds (attempt $ATTEMPT/3)."
+		rm -rf "./$REPO_NAME"
+		sleep 10
+	done
 
 	# 处理克隆的仓库
 	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
@@ -96,4 +109,4 @@ UPDATE_VERSION() {
 UPDATE_VERSION "sing-box"
 #UPDATE_VERSION "tailscale"
 # 添加 luci-app-adblock-fast 源码
-git clone --depth=1 https://github.com/sbwml/luci-app-adblock-fast luci-app-adblock-fast
+UPDATE_PACKAGE "luci-app-adblock-fast" "sbwml/luci-app-adblock-fast" "master"

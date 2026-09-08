@@ -39,6 +39,11 @@ echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
 echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
+#手动调整的插件
+if [ -n "$WRT_PACKAGE" ]; then
+	echo -e "$WRT_PACKAGE" >> ./.config
+fi
+
 # JDCloud AX1800 Pro uses the IPQ6018 high-performance firmware set.
 echo "CONFIG_FEED_nss_packages=n" >> ./.config
 echo "CONFIG_FEED_sqm_scripts_nss=n" >> ./.config
