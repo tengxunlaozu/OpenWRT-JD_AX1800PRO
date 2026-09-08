@@ -1,0 +1,126 @@
+name: Build JDCloud AX1800 Pro
+
+on:
+  workflow_dispatch:
+    inputs:
+      hostname:
+        description: Router hostname
+        required: true
+        default: JD-AX1800PRO
+        type: string
+      lan_ip:
+        description: Router LAN address
+        required: true
+        default: 192.168.10.1
+        type: string
+      wifi_ssid:
+        description: Wi-Fi SSID
+        required: true
+        default: JD-AX1800PRO
+        type: string
+      wifi_password:
+        description: Wi-Fi password
+        required: true
+        default: 12345678
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_REPOSITORY: https://github.com/VIKINGYFY/immortalwrt.git
+  SOURCE_BRANCH: main
+  WRT_THEME: aurora
+  WRT_NAME: ${{ inputs.hostname }}
+  WRT_IP: ${{ inputs.lan_ip }}
+  WRT_SSID: ${{ inputs.wifi_ssid }}
+  WRT_WORD: ${{ inputs.wifi_password }}
+
+jobs:
+  build:
+    name: JDCloud AX1800 Pro
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang curl file flex bison g++ gawk gcc-multilib gettext git jq libncurses5-dev libssl-dev python3 python3-setuptools rsync unzip wget zlib1g-dev
+          sudo timedatectl set-timezone Asia/Shanghai
+
+      - name: Clone ImmortalWrt source
+        id: source
+        run: |
+          git clone --depth=1 --single-branch --branch "$SOURCE_BRANCH" "$SOURCE_REPOSITORY" wrt
+          cd wrt
+          echo "hash=$(git log -1 --pretty=format:%h)" >> "$GITHUB_OUTPUT"
+          echo "date=$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
+
+      - name: Update feeds and custom packages
+        run: |
+          cd wrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          cd package
+          chmod +x "$GITHUB_WORKSPACE/Scripts/Packages.sh" "$GITHUB_WORKSPACE/Scripts/Handles.sh"
+          "$GITHUB_WORKSPACE/Scripts/Packages.sh"
+          "$GITHUB_WORKSPACE/Scripts/Handles.sh"
+
+      - name: Apply JDCloud AX1800 Pro configuration
+        run: |
+          cd wrt
+          cat "$GITHUB_WORKSPACE/Config/IPQ60XX-WIFI-YES.txt" "$GITHUB_WORKSPACE/Config/GENERAL.txt" >> .config
+          chmod +x "$GITHUB_WORKSPACE/Scripts/Settings.sh"
+          WRT_MARK="${GITHUB_REPOSITORY%%/*}" WRT_DATE="${{ steps.source.outputs.date }}" "$GITHUB_WORKSPACE/Scripts/Settings.sh"
+          make defconfig
+
+      - name: Download source packages
+        run: |
+          cd wrt
+          make download -j"$(nproc)"
+
+      - name: Build firmware
+        run: |
+          cd wrt
+          make -j"$(nproc)" || make -j1 V=s
+
+      - name: Collect firmware
+        run: |
+          set -euo pipefail
+          release_dir="$GITHUB_WORKSPACE/release"
+          target_dir="$GITHUB_WORKSPACE/wrt/bin/targets/qualcommax/ipq60xx"
+          test -d "$target_dir"
+          mkdir -p "$release_dir"
+          find "$target_dir" -maxdepth 1 -type f -name '*jdcloud_re-ss-01*.bin' -exec cp {} "$release_dir" \;
+          test -n "$(find "$release_dir" -maxdepth 1 -type f -name '*.bin' -print -quit)"
+          cp "$GITHUB_WORKSPACE/wrt/.config" "$release_dir/openwrt.config"
+          (
+            cd "$release_dir"
+            sha256sum *.bin > sha256sums
+          )
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jd-ax1800pro-${{ steps.source.outputs.date }}
+          path: release
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: jd-ax1800pro-${{ steps.source.outputs.date }}
+          name: JDCloud AX1800 Pro ${{ steps.source.outputs.date }}
+          files: release/*
+          body: |
+            Device: JDCloud AX1800 Pro (jdcloud_re-ss-01)
+            Source: VIKINGYFY/immortalwrt (${{ env.SOURCE_BRANCH }})
+            Commit: ${{ steps.source.outputs.hash }}
+            LAN address: ${{ env.WRT_IP }}
+            Default Wi-Fi SSID: ${{ env.WRT_SSID }}
+            LuCI password: none by default
