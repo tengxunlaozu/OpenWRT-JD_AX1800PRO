@@ -1,12 +1,6 @@
 name: Build JDCloud AX1800 Pro
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    # GitHub cron uses UTC; 18:30 UTC is 02:30 in China Standard Time.
-    - cron: '30 18 * * *'
   workflow_dispatch:
 
 permissions:
