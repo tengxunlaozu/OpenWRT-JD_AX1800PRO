@@ -1,28 +1,13 @@
 name: Build JDCloud AX1800 Pro
 
 on:
+  push:
+    branches:
+      - main
+  schedule:
+    # GitHub cron uses UTC; 18:30 UTC is 02:30 in China Standard Time.
+    - cron: '30 18 * * *'
   workflow_dispatch:
-    inputs:
-      hostname:
-        description: Router hostname
-        required: true
-        default: JD-AX1800PRO
-        type: string
-      lan_ip:
-        description: Router LAN address
-        required: true
-        default: 192.168.10.1
-        type: string
-      wifi_ssid:
-        description: Wi-Fi SSID
-        required: true
-        default: JD-AX1800PRO
-        type: string
-      wifi_password:
-        description: Wi-Fi password
-        required: true
-        default: 12345678
-        type: string
 
 permissions:
   contents: write
@@ -31,10 +16,10 @@ env:
   SOURCE_REPOSITORY: https://github.com/VIKINGYFY/immortalwrt.git
   SOURCE_BRANCH: main
   WRT_THEME: aurora
-  WRT_NAME: ${{ inputs.hostname }}
-  WRT_IP: ${{ inputs.lan_ip }}
-  WRT_SSID: ${{ inputs.wifi_ssid }}
-  WRT_WORD: ${{ inputs.wifi_password }}
+  WRT_NAME: JD-AX1800PRO
+  WRT_IP: 192.168.10.1
+  WRT_SSID: JD-AX1800PRO
+  WRT_WORD: 12345678
 
 jobs:
   build:
