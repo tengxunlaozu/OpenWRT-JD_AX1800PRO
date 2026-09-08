@@ -108,5 +108,3 @@ UPDATE_VERSION() {
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 #UPDATE_VERSION "tailscale"
-# 添加 luci-app-adblock-fast 源码
-UPDATE_PACKAGE "luci-app-adblock-fast" "sbwml/luci-app-adblock-fast" "master"
