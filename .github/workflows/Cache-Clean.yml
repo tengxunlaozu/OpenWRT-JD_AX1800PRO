@@ -14,4 +14,6 @@ jobs:
       - name: Cache Clean
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh cache delete --all --confirm
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh cache delete --all || true
