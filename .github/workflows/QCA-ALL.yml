@@ -92,7 +92,7 @@ jobs:
         if: env.WRT_TEST != 'true'
         run: |
           cd wrt
-          make -j"$(nproc)" || make -j1 V=s
+          make -j2
 
       - name: Collect firmware
         if: env.WRT_TEST != 'true'
