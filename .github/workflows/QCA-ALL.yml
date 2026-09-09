@@ -31,6 +31,7 @@ jobs:
   build:
     name: JDCloud AX1800 Pro
     runs-on: ubuntu-latest
+    timeout-minutes: 150
 
     steps:
       - name: Check out this repository
