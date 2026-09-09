@@ -99,12 +99,16 @@ jobs:
           set -euo pipefail
           target_dir="$GITHUB_WORKSPACE/wrt/bin/targets/qualcommax/ipq60xx"
           test -d "$target_dir"
-          find "$target_dir" -maxdepth 1 -type f -name '*jdcloud_re-ss-01*.bin' -exec cp {} "$GITHUB_WORKSPACE/release" \;
+          echo "=== Targets directory files ==="
+          ls -lh "$target_dir"
+          find "$target_dir" -maxdepth 1 -type f \( -name '*jdcloud_re-ss-01*' -o -name '*re-ss-01*' \) -exec cp -v {} "$GITHUB_WORKSPACE/release" \;
           test -n "$(find "$GITHUB_WORKSPACE/release" -maxdepth 1 -type f -name '*.bin' -print -quit)"
           (
             cd "$GITHUB_WORKSPACE/release"
-            sha256sum *.bin > sha256sums
+            sha256sum *.{bin,itb} > sha256sums 2>/dev/null || sha256sum *.bin > sha256sums
           )
+          echo "=== Collected files in release ==="
+          ls -lh "$GITHUB_WORKSPACE/release"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
