@@ -107,6 +107,3 @@ UPDATE_VERSION() {
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 #UPDATE_VERSION "tailscale"
-
-# 从 ImmortalWrt 官方库中提取 luci-app-softethervpn
-svn export https://github.com/immortalwrt/luci/trunk/applications/luci-app-softethervpn package/luci-app-softethervpn
