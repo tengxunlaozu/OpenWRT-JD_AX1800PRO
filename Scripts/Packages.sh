@@ -108,5 +108,5 @@ UPDATE_VERSION() {
 UPDATE_VERSION "sing-box"
 #UPDATE_VERSION "tailscale"
 
-# 拉取 SoftEtherVPN LuCI 管理界面
-git clone --depth=1 https://github.com/SuLingGG/luci-app-softethervpn.git package/luci-app-softethervpn
+# 从 ImmortalWrt 官方库中提取 luci-app-softethervpn
+svn export https://github.com/immortalwrt/luci/trunk/applications/luci-app-softethervpn package/luci-app-softethervpn
