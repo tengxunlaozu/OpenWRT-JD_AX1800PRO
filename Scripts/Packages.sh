@@ -107,3 +107,6 @@ UPDATE_VERSION() {
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 UPDATE_VERSION "sing-box"
 #UPDATE_VERSION "tailscale"
+
+# 拉取 SoftEtherVPN LuCI 管理界面
+git clone --depth=1 https://github.com/SuLingGG/luci-app-softethervpn.git package/luci-app-softethervpn
