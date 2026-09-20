@@ -64,7 +64,6 @@ UPDATE_PACKAGE "aurora-config" "eamonxg/luci-app-aurora-config" "master"
 UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
 UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
 UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
-UPDATE_PACKAGE "openlist2" "sbwml/luci-app-openlist2" "main"
 
 UPDATE_VERSION() {
 	local PKG_NAME=$1
